@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -17,11 +18,11 @@ namespace PocketDict
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme.NoActionBar", MainLauncher = true)]
     public class MainActivity : AppCompatActivity
     {
-        TextView textMessage;
-        EditText searchBox;
-        TextView definitionsView;
-        TextView wordView;
-        TextView polishView;
+        private EditText searchBox;
+        private TextView definitionsView;
+        private TextView wordView;
+        private TextView polishView;
+        private SQLiteConnection db;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -29,7 +30,8 @@ namespace PocketDict
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
 
-            textMessage = FindViewById<TextView>(Resource.Id.message);
+            InitializeDb();
+
             searchBox = FindViewById<EditText>(Resource.Id.searchBox);
             definitionsView = FindViewById<TextView>(Resource.Id.definitionsView);
             wordView = FindViewById<TextView>(Resource.Id.wordView);
@@ -37,67 +39,94 @@ namespace PocketDict
 
             definitionsView.MovementMethod = new ScrollingMovementMethod();
 
+            searchBox.TextChanged += SearchBox_TextChanged;
+
             //Android.Support.V7.Widget.Toolbar toolbar = FindViewById<Android.Support.V7.Widget.Toolbar>(Resource.Id.toolbar);
             //SetSupportActionBar(toolbar);
 
             //FloatingActionButton fab = FindViewById<FloatingActionButton>(Resource.Id.fab);
             //fab.Click += FabOnClick;
+        }
 
+        private void InitializeDb()
+        {
             string dbPath = FileAccessHelper.GetLocalFilePath("wordsdbandroid.db");
-            var db = new SQLiteConnection(dbPath);
+            db = new SQLiteConnection(dbPath);
+        }
 
-            //definitionsView.MovementMethod.Initialize(new ScrollingMovementMethod());
-
-            searchBox.TextChanged += delegate
+        private void SearchBox_TextChanged(object sender, Android.Text.TextChangedEventArgs e)
+        {
+            try
             {
-                try
+                if (searchBox.Text.Length > 2)
                 {
-                    definitionsView.Text = string.Empty ;
+                    definitionsView.Text = string.Empty;
                     wordView.Text = string.Empty;
                     polishView.Text = string.Empty;
+                    var word = db.Get<Word>(searchBox.Text);
+                    var Definition = db.Get<Definitions>(word.wordId);
+                    var definitions = GetDefinitionsAsync(db, word.wordId);
+                    var polishWords = GetPolishWordsAsync(db, word.wordId);
+                    var examples = GetExamplesAsync(db, definitions);
 
-                    var stock = db.Get<Word>(searchBox.Text);
-                    var Definition = db.Get<Definitions>(stock.wordId);
-                    var Definitions = db.Query<Definitions>($"select * from Definitions where wordId = ?", stock.wordId);
-                    var PolishWords = db.Query<PolishWord>($"select * from PolishWords where wordId = ?", stock.wordId);
-                    var examples = db.Query<Examples>($"select * from Examples where definitionId in ({string.Join(",", Definitions.Select(x => x.definitionId.ToString()))})");
+                    wordView.Append($"{word.word} [{word.type}]");
 
-                    wordView.Append($"{stock.word} [{stock.type}]");
-
-                    for (int i = 0; i < Definitions.Count; i++)
-                    {
-                        definitionsView.Append($"{i+1}. {Definitions[i].definition}");
-                        var example = examples.FirstOrDefault(x => x.definitionId == Definitions[i].definitionId);
-                        if (example != null)
-                        {
-                            definitionsView.Append(System.Environment.NewLine);
-                            definitionsView.Append($"  -{example.example}");
-                        }
-                        definitionsView.Append(System.Environment.NewLine);
-
-                    }
-                    polishView.Append("Polish: ");
-                    polishView.Append(System.Environment.NewLine);
-
-                    StringBuilder str = new StringBuilder();
-                    foreach (var polword in PolishWords)
-                    {
-                        str.Append($"{polword.word} [{polword.type}] ");
-                    }
-
-                    polishView.Append(str.ToString());
+                    SetDefitnitionsView(definitionsView, definitions, examples);
+                    SetPolishView(polishView, polishWords);
 
                     definitionsView.Invalidate();
                     wordView.Invalidate();
                     polishView.Invalidate();
                 }
-                catch
+            }
+            catch
+            {
+
+            }
+        }
+
+        public List<Examples> GetExamplesAsync(SQLiteConnection db, List<Definitions> definitions)
+        {
+            return db.Query<Examples>($"select * from Examples where definitionId in ({string.Join(",", definitions.Select(x => x.definitionId.ToString()))})");
+        }
+
+        public List<PolishWord> GetPolishWordsAsync(SQLiteConnection db, int id)
+        {
+            return db.Query<PolishWord>($"select * from PolishWords where wordId = ?", id);
+        }
+
+        public List<Definitions> GetDefinitionsAsync(SQLiteConnection db, int id)
+        {
+            return db.Query<Definitions>($"select * from Definitions where wordId = ?", id);
+        }
+
+        public void SetDefitnitionsView(TextView definitionsView, List<Definitions> definitions, List<Examples> examples)
+        {
+            for (int i = 0; i < definitions.Count; i++)
+            {
+                definitionsView.Append($"{i + 1}. {definitions[i].definition}");
+                var example = examples.FirstOrDefault(x => x.definitionId == definitions[i].definitionId);
+                if (example != null)
                 {
-
+                    definitionsView.Append(System.Environment.NewLine);
+                    definitionsView.Append($"  -{example.example}");
                 }
-            };
+                definitionsView.Append(System.Environment.NewLine);
 
+            }
+        }
 
+        public void SetPolishView(TextView polishView, List<PolishWord> polishWords)
+        {
+            polishView.Append("Polish: ");
+            polishView.Append(System.Environment.NewLine);
+
+            StringBuilder str = new StringBuilder();
+            foreach (var polword in polishWords)
+            {
+                str.Append($"{polword.word} [{polword.type}] ");
+            }
+            polishView.Append(str.ToString());
         }
 
 
