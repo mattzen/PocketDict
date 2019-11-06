@@ -5,17 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:showIn="@layout/activity_main"
-      android:orientation="vertical">
-    >
+    tools:showIn="@layout/activity_main">
     
 		<EditText
         android:id="@+id/searchBox"
 		android:layout_width="fill_parent"        
         android:layout_height="50dp"
-        android:hint="Type a word"
-        
-        />
+        android:hint="Type a word"/>
 
     	<TextView
 		android:id="@+id/wordView"
@@ -24,9 +20,8 @@
         android:textSize = "60px"
         android:fontFamily="sans-serif-black"
         android:gravity="fill_vertical"
-        android:layout_below="@+id/searchBox"
-   
-       />
+        android:layout_below="@+id/searchBox"/>
+
     	<TextView
 		android:id="@+id/definitionsView"
 		android:layout_width="fill_parent"
@@ -35,10 +30,9 @@
         android:scrollbars = "vertical"
         android:fontFamily="sans-serif-black" 
         android:gravity="fill_vertical"
-        android:layout_below="@+id/wordView"
-	   />
+        android:layout_below="@+id/wordView"/>
 		    			
-	<TextView
+	    <TextView
         android:layout_below="@+id/definitionsView"
 		android:id="@+id/polishView"
 		android:layout_width="fill_parent"
@@ -47,8 +41,7 @@
         android:textFontWeight="100"
         android:scrollbars = "vertical"
         android:fontFamily="sans-serif-black" 
-        android:textColor = "@android:color/holo_red_dark"
-	   />	
+        android:textColor = "@android:color/holo_red_dark"/>	
 
 
 </RelativeLayout>
