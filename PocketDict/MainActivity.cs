@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Android.App;
+using Android.Content.Res;
 using Android.OS;
 using Android.Runtime;
 using Android.Support.Design.Widget;
@@ -22,7 +23,9 @@ namespace PocketDict
         private TextView definitionsView;
         private TextView wordView;
         private TextView polishView;
+        private TextView suggestionsView;
         private SQLiteConnection db;
+        private List<string> wordListLocal;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -31,11 +34,22 @@ namespace PocketDict
             SetContentView(Resource.Layout.activity_main);
 
             InitializeDb();
+            wordListLocal = new List<string>();
+            AssetManager assets = this.Assets;
+
+            using (StreamReader reader = new StreamReader(assets.Open("words.txt")))
+            {
+                while (!reader.EndOfStream)
+                {
+                    wordListLocal.Add(reader.ReadLine());
+                }
+            }
 
             searchBox = FindViewById<EditText>(Resource.Id.searchBox);
             definitionsView = FindViewById<TextView>(Resource.Id.definitionsView);
             wordView = FindViewById<TextView>(Resource.Id.wordView);
             polishView = FindViewById<TextView>(Resource.Id.polishView);
+            suggestionsView = FindViewById<TextView>(Resource.Id.suggestionsView);
 
             definitionsView.MovementMethod = new ScrollingMovementMethod();
 
@@ -60,16 +74,21 @@ namespace PocketDict
             {
                 if (searchBox.Text.Length > 2)
                 {
-                    definitionsView.Text = string.Empty;
-                    wordView.Text = string.Empty;
-                    polishView.Text = string.Empty;
+                    GetEstimate(suggestionsView, searchBox.Text, wordListLocal);
+
+             
                     var word = db.Get<Word>(searchBox.Text);
                     var Definition = db.Get<Definitions>(word.wordId);
                     var definitions = GetDefinitionsAsync(db, word.wordId);
                     var polishWords = GetPolishWordsAsync(db, word.wordId);
                     var examples = GetExamplesAsync(db, definitions);
+                    
+                    wordView.Text = string.Empty;
 
                     wordView.Append($"{word.word} [{word.type}]");
+                    
+                    definitionsView.Text = string.Empty;
+                    polishView.Text = string.Empty;
 
                     SetDefitnitionsView(definitionsView, definitions, examples);
                     SetPolishView(polishView, polishWords);
@@ -85,6 +104,81 @@ namespace PocketDict
             }
         }
 
+
+        public void GetEstimate(TextView google_textbox, string input, List<string> list)
+        {
+            string word;
+            List<double> list_scores;
+            List<string> list_now = new List<string>(list);
+            word = input;
+
+            if (word.Length > 0)
+            {
+
+                list_scores = new List<double>();
+                int index;
+                string val1;
+                double max;
+                google_textbox.Text = "";
+
+                for (int i = 0; i < list.Count; i++)
+                {
+
+                    list_scores.Add(getScore(word, list_now[i]));
+
+                }
+
+
+                for (int i = 0; i < 10; i++)
+                {
+                    max = list_scores.Max();
+                    index = list_scores.IndexOf(max);
+                    val1 = list_now[index];
+                    list_scores.RemoveAt(index);
+                    list_now.RemoveAt(index);
+                    google_textbox.Text += val1 + " " + max.ToString() + " | ";
+                }
+                google_textbox.Invalidate();
+            }
+        }
+
+
+        public double getScore(string keyword, string testword)
+        {
+            int score = 0;
+            int count = 0;
+
+            for (int i = 0; i < keyword.Length; i++)
+            {
+                for (int j = count; j < testword.Length; j++)
+                {
+                    if (keyword[i] == testword[j])
+                    {
+                        score = score + 2;
+                        count = j;
+                        break;
+                    }
+
+                }
+
+            }
+
+            if (keyword.Length == testword.Length)
+                score += 1;
+
+            if (keyword[0] == testword[0] && keyword[keyword.Length - 1] == testword[testword.Length - 1])
+                score += 1;
+            else
+                score -= 1;
+
+            if (testword.Length > keyword.Length)
+                score -= (testword.Length - keyword.Length) / 2;
+
+            if (testword.Length < keyword.Length)
+                score -= (keyword.Length - testword.Length) / 2;
+
+            return score;
+        }
         public List<Examples> GetExamplesAsync(SQLiteConnection db, List<Definitions> definitions)
         {
             return db.Query<Examples>($"select * from Examples where definitionId in ({string.Join(",", definitions.Select(x => x.definitionId.ToString()))})");
