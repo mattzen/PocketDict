@@ -13,43 +13,41 @@
         android:id="@+id/searchBox"
 		android:layout_width="fill_parent"        
         android:layout_height="50dp"
-        android:hint="Type a word" />
+        android:hint="Type a word"
+        
+        />
 
     	<TextView
 		android:id="@+id/wordView"
 		android:layout_width="fill_parent"
-		android:layout_height="35.0dp"
+		android:layout_height="wrap_content"
         android:textSize = "60px"
-		android:text="Search"
-		
         android:fontFamily="sans-serif-black"
-          android:gravity="fill_vertical"
+        android:gravity="fill_vertical"
+        android:layout_below="@+id/searchBox"
    
        />
     	<TextView
 		android:id="@+id/definitionsView"
 		android:layout_width="fill_parent"
-        android:text="Search"
         android:textSize = "40px"
-		android:layout_height="340.0dp"
-		
+		android:layout_height="wrap_content"
         android:scrollbars = "vertical"
         android:fontFamily="sans-serif-black" 
         android:gravity="fill_vertical"
+        android:layout_below="@+id/wordView"
 	   />
 		    			
 	<TextView
+        android:layout_below="@+id/definitionsView"
 		android:id="@+id/polishView"
 		android:layout_width="fill_parent"
-        android:text="Search"
         android:textSize = "40px"
-		android:layout_height="60.0dp"
-		
+		android:layout_height="wrap_content"	
         android:textFontWeight="100"
         android:scrollbars = "vertical"
         android:fontFamily="sans-serif-black" 
         android:textColor = "@android:color/holo_red_dark"
-          android:gravity="fill_vertical"
 	   />	
 
 

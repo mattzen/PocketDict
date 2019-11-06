@@ -62,7 +62,7 @@ namespace PocketDict
                     var PolishWords = db.Query<PolishWord>($"select * from PolishWords where wordId = ?", stock.wordId);
                     var examples = db.Query<Examples>($"select * from Examples where definitionId in ({string.Join(",", Definitions.Select(x => x.definitionId.ToString()))})");
 
-                    wordView.Append(searchBox.Text);
+                    wordView.Append($"{stock.word} [{stock.type}]");
 
                     for (int i = 0; i < Definitions.Count; i++)
                     {
@@ -82,7 +82,7 @@ namespace PocketDict
                     StringBuilder str = new StringBuilder();
                     foreach (var polword in PolishWords)
                     {
-                        str.Append($"{polword.word} [{polword.type}]");
+                        str.Append($"{polword.word} [{polword.type}] ");
                     }
 
                     polishView.Append(str.ToString());
