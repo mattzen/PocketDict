@@ -12,7 +12,7 @@ using Android.Widget;
 
 namespace PocketDict.Models
 {
-    public class CombinedSearchModel
+    public class CombinedSearchModelPolish
     {
         public List<Definition> definitions { get; set; }
         public List<Example> examples { get; set; }

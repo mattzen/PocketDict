@@ -66,29 +66,27 @@ namespace PocketDict
                 {
                     suggestionService.GetEstimate(suggestionsView, searchBox.Text);
 
-                    var taskOne = Task.Run(() => dao.GetCombinedSearchModel(searchBox.Text));
-                    var taskTwo = Task.Run(() => dao.GetCombinedSearchModelEnglish(searchBox.Text));
+                    var polishTask = Task.Run(() => dao.GetCombinedSearchModelPolish(searchBox.Text));
+                    var englishTask = Task.Run(() => dao.GetCombinedSearchModelEnglish(searchBox.Text));
 
-                    taskOne.Wait();
-                    taskTwo.Wait();
+                    Task.WaitAll(polishTask, englishTask);
 
-                    if (taskOne?.Result != null && taskOne.Result.words.Count > 0)
+                    if (polishTask?.Result != null && polishTask.Result.words.Count > 0)
                     {
                         wordView.Text = string.Empty;
-                        wordView.Append($"{taskOne.Result.polishWord?.word} [{taskOne.Result.polishWord?.type}]");
+                        wordView.Append($"{polishTask.Result.polishWord?.word} [{polishTask.Result.polishWord?.type}]");
                         definitionsView.Text = string.Empty;
                         polishView.Text = string.Empty;
-                       //SetDefitnitionsView(definitionsView, taskOne.Result.definitions, taskOne.Result.examples);
-                        SetPolishView(polishView, taskOne.Result.words);
+                        SetEnglishTransaltionView(polishView, polishTask.Result.words);
                     }
-                    else if (taskTwo?.Result != null && taskTwo.Result.polishWords.Count > 0)
+                    else if (englishTask?.Result != null && englishTask.Result.polishWords.Count > 0)
                     {
                         wordView.Text = string.Empty;
-                        wordView.Append($"{taskTwo.Result.word?.word} [{taskTwo.Result.word?.type}]");
+                        wordView.Append($"{englishTask.Result.word?.word} [{englishTask.Result.word?.type}]");
                         definitionsView.Text = string.Empty;
                         polishView.Text = string.Empty;
-                        SetDefitnitionsView(definitionsView, taskTwo.Result.definitions, taskTwo.Result.examples);
-                        SetPolishView(polishView, taskTwo.Result.polishWords);
+                        SetDefitnitionsView(definitionsView, englishTask.Result.definitions, englishTask.Result.examples);
+                        SetPolishTransaltionsView(polishView, englishTask.Result.polishWords);
                     }
 
                     definitionsView.Invalidate();
@@ -118,7 +116,7 @@ namespace PocketDict
             }
         }
 
-        public void SetPolishView(TextView polishView, List<PolishWord> polishWords)
+        public void SetPolishTransaltionsView(TextView polishView, List<PolishWord> polishWords)
         {
             polishView.Append("Polish: ");
             polishView.Append(System.Environment.NewLine);
@@ -131,7 +129,7 @@ namespace PocketDict
             polishView.Append(str.ToString());
         }
 
-        public void SetPolishView(TextView polishView, List<Word> polishWords)
+        public void SetEnglishTransaltionView(TextView polishView, List<Word> polishWords)
         {
             polishView.Append("English: ");
             polishView.Append(System.Environment.NewLine);
