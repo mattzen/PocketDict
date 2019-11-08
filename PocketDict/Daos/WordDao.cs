@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-
-using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
+using PocketDict.Helpers;
+using PocketDict.Models;
 using SQLite;
 
-namespace PocketDict
+namespace PocketDict.Daos
 {
     public class WordDao
     {
@@ -25,8 +18,8 @@ namespace PocketDict
 
         public CombinedSearchModel GetCombinedSearchModel(string keyword)
         {
-            List<Definitions> definitions = new List<Definitions>();
-            List<Examples> examples = new List<Examples>();
+            List<Definition> definitions = new List<Definition>();
+            List<Example> examples = new List<Example>();
             try
             {
                 var word = GetWordsFromPolishSearchAsync(keyword);
@@ -47,7 +40,6 @@ namespace PocketDict
                         words = words,
                         polishWord = word[0]
                     };
-
                 }
             }
             catch
@@ -60,8 +52,8 @@ namespace PocketDict
 
         public CombinedSearchModelEnglish GetCombinedSearchModelEnglish(string keyword)
         {
-            List<Definitions> definitions = new List<Definitions>();
-            List<Examples> examples = new List<Examples>();
+            List<Definition> definitions = new List<Definition>();
+            List<Example> examples = new List<Example>();
             List<PolishWord> polishWords = new List<PolishWord>();
             try
             {
@@ -81,7 +73,6 @@ namespace PocketDict
                         word = word
 
                     };
-
                 }
             }
             catch
@@ -102,9 +93,9 @@ namespace PocketDict
             return db.Query<Word>($"select * from Words where wordId in ({string.Join(",", polishWord.Select(x => x.wordId.ToString()))})");
         }
 
-        private List<Examples> GetExamplesAsync(List<Definitions> definitions)
+        private List<Example> GetExamplesAsync(List<Definition> definitions)
         {
-            return db.Query<Examples>($"select * from Examples where definitionId in ({string.Join(",", definitions.Select(x => x.definitionId.ToString()))})");
+            return db.Query<Example>($"select * from Examples where definitionId in ({string.Join(",", definitions.Select(x => x.definitionId.ToString()))})");
         }
 
         private List<PolishWord> GetPolishWordsAsync(int id)
@@ -112,9 +103,9 @@ namespace PocketDict
             return db.Query<PolishWord>($"select * from PolishWords where wordId = ?", id);
         }
 
-        private List<Definitions> GetDefinitionsAsync(int id)
+        private List<Definition> GetDefinitionsAsync(int id)
         {
-            return db.Query<Definitions>($"select * from Definitions where wordId = ?", id);
+            return db.Query<Definition>($"select * from Definitions where wordId = ?", id);
         }
     }
 }

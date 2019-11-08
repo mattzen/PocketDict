@@ -10,12 +10,12 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 
-namespace PocketDict
+namespace PocketDict.Models
 {
     public class CombinedSearchModel
     {
-        public List<Definitions> definitions { get; set; }
-        public List<Examples> examples { get; set; }
+        public List<Definition> definitions { get; set; }
+        public List<Example> examples { get; set; }
         public PolishWord polishWord { get; set; }
         public List<Word> words { get; set; }
 
@@ -23,8 +23,8 @@ namespace PocketDict
 
     public class CombinedSearchModelEnglish
     {
-        public List<Definitions> definitions { get; set; }
-        public List<Examples> examples { get; set; }
+        public List<Definition> definitions { get; set; }
+        public List<Example> examples { get; set; }
         public List<PolishWord> polishWords { get; set; }
         public Word word { get; set; }
     }

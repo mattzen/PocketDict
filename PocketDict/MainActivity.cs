@@ -13,6 +13,9 @@ using Android.Support.V7.App;
 using Android.Text.Method;
 using Android.Views;
 using Android.Widget;
+using PocketDict.Daos;
+using PocketDict.Models;
+using PocketDict.Services;
 using SQLite;
 
 namespace PocketDict
@@ -100,7 +103,7 @@ namespace PocketDict
        }
 
 
-        public void SetDefitnitionsView(TextView definitionsView, List<Definitions> definitions, List<Examples> examples)
+        public void SetDefitnitionsView(TextView definitionsView, List<Definition> definitions, List<Example> examples)
         {
             for (int i = 0; i < definitions.Count; i++)
             {

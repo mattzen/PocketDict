@@ -12,7 +12,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 
-namespace PocketDict
+namespace PocketDict.Services
 {
     public class SuggestionCalculatingService
     {
