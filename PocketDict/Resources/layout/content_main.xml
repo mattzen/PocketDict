@@ -65,6 +65,12 @@
         android:scrollbars = "vertical"
         android:fontFamily="sans-serif-black" 
         android:textColor = "@android:color/holo_red_dark"/>	
-
+    
+    <LinearLayout
+      android:id="@+id/polishTranslationLayout"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@+id/polishView">
+    </LinearLayout >
 
 </RelativeLayout>

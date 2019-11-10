@@ -31,6 +31,13 @@ namespace PocketDict
         private TextView suggestionsView;
         private Button speakButton;
         private string currentWord = string.Empty;
+        private LinearLayout polishTranslationLayout;
+
+        private TextView tx;
+        private TextView tx1;
+        private TextView tx2;
+
+
 
         SuggestionCalculatingService suggestionService;
         WordDao dao;
@@ -50,6 +57,9 @@ namespace PocketDict
             polishView = FindViewById<TextView>(Resource.Id.polishView);
             suggestionsView = FindViewById<TextView>(Resource.Id.suggestionsView);
             speakButton = FindViewById<Button>(Resource.Id.speakButton);
+            polishTranslationLayout = FindViewById<LinearLayout>(Resource.Id.polishTranslationLayout);
+
+       
             speakButton.Visibility = ViewStates.Invisible;
             definitionsView.MovementMethod = new ScrollingMovementMethod();
 
@@ -150,10 +160,14 @@ namespace PocketDict
                 str.Append($"{polword.word} [{polword.type}] ");
             }
             polishView.Append(str.ToString());
+
         }
+
+
 
         public void SetEnglishTransaltionView(TextView polishView, List<Word> polishWords)
         {
+            polishTranslationLayout.RemoveAllViews();
             polishView.Append("English: ");
             polishView.Append(System.Environment.NewLine);
 
@@ -163,6 +177,69 @@ namespace PocketDict
                 str.Append($"{polword.word} [{polword.type}] ");
             }
             polishView.Append(str.ToString());
+
+            tx = new TextView(this);
+
+            tx.Text = polishWords[0].word;
+            tx.SetPadding(0,0,0,0);
+            tx.Touch += Tx_Touch;
+
+            polishTranslationLayout.AddView(tx);
+
+            if (polishWords.Count > 1)
+            {
+                tx1 = new TextView(this);
+
+                tx1.Text = polishWords[1].word;
+                tx1.SetPadding(20, 0, 0, 0);
+                tx1.Touch += Tx1_Touch; 
+
+                polishTranslationLayout.AddView(tx1);
+            }
+
+            if (polishWords.Count > 2)
+            {
+                tx2 = new TextView(this);
+
+                tx2.Text = polishWords[2].word;
+                tx2.SetPadding(20, 0, 0, 0);
+
+                tx2.Touch += Tx2_Touch;
+
+                polishTranslationLayout.AddView(tx2);
+            }
+
+            polishTranslationLayout.Invalidate();
+
+        }
+
+        private void UnsubscribeAll()
+        {
+            tx.Touch -= Tx_Touch;
+            tx1.Touch -= Tx1_Touch;
+            tx2.Touch -= Tx2_Touch;
+        }
+
+
+        private void Tx2_Touch(object sender, View.TouchEventArgs e)
+        {
+            searchBox.Text = ((TextView)sender).Text;
+            polishTranslationLayout.RemoveAllViews();
+            UnsubscribeAll();
+        }
+
+        private void Tx_Touch(object sender, View.TouchEventArgs e)
+        {
+            searchBox.Text = ((TextView)sender).Text;
+            polishTranslationLayout.RemoveAllViews();
+            UnsubscribeAll();
+        }
+
+        private void Tx1_Touch(object sender, View.TouchEventArgs e)
+        {
+            searchBox.Text = ((TextView)sender).Text;
+            polishTranslationLayout.RemoveAllViews();
+            UnsubscribeAll();
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
