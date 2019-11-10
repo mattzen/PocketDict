@@ -6,11 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content.Res;
+using Android.Graphics;
 using Android.OS;
 using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Support.V7.App;
 using Android.Text.Method;
+using Android.Util;
 using Android.Views;
 using Android.Widget;
 using PocketDict.Daos;
@@ -168,44 +170,46 @@ namespace PocketDict
         public void SetEnglishTransaltionView(TextView polishView, List<Word> polishWords)
         {
             polishTranslationLayout.RemoveAllViews();
-            polishView.Append("English: ");
-            polishView.Append(System.Environment.NewLine);
-
-            StringBuilder str = new StringBuilder();
-            foreach (var polword in polishWords)
-            {
-                str.Append($"{polword.word} [{polword.type}] ");
-            }
-            polishView.Append(str.ToString());
+            
+            //polishView.Append("English: ");
+            //polishView.Append(System.Environment.NewLine);
+            //StringBuilder str = new StringBuilder();
+            //foreach (var polword in polishWords)
+            //{
+            //    str.Append($"{polword.word} [{polword.type}] ");
+            //}
+            //polishView.Append(str.ToString());
 
             tx = new TextView(this);
-
-            tx.Text = polishWords[0].word;
+            tx.SetTextColor(Color.DarkBlue);
+            tx.SetTextSize(ComplexUnitType.Pt, 14);
+            tx.SetTypeface(null, TypefaceStyle.Bold);
+            tx.Text = $"[{polishWords[0].word}]";
             tx.SetPadding(0,0,0,0);
             tx.Touch += Tx_Touch;
-
             polishTranslationLayout.AddView(tx);
 
             if (polishWords.Count > 1)
             {
                 tx1 = new TextView(this);
-
-                tx1.Text = polishWords[1].word;
-                tx1.SetPadding(20, 0, 0, 0);
-                tx1.Touch += Tx1_Touch; 
-
+                tx1.SetTextColor(Color.DarkBlue);
+                tx1.Text = $"[{polishWords[1].word}]";
+                tx1.SetTextSize(ComplexUnitType.Pt, 14);
+                tx1.SetTypeface(null, TypefaceStyle.Bold);
+                tx1.SetPadding(25, 0, 0, 0);
+                tx1.Touch += Tx1_Touch;
                 polishTranslationLayout.AddView(tx1);
             }
 
             if (polishWords.Count > 2)
             {
                 tx2 = new TextView(this);
-
-                tx2.Text = polishWords[2].word;
-                tx2.SetPadding(20, 0, 0, 0);
-
+                tx2.SetTextColor(Color.DarkBlue);
+                tx2.Text = $"[{polishWords[2].word}]";
+                tx2.SetPadding(25, 0, 0, 0);
+                tx2.SetTextSize(ComplexUnitType.Pt, 14);
+                tx2.SetTypeface(null, TypefaceStyle.Bold);
                 tx2.Touch += Tx2_Touch;
-
                 polishTranslationLayout.AddView(tx2);
             }
 
@@ -215,31 +219,52 @@ namespace PocketDict
 
         private void UnsubscribeAll()
         {
-            tx.Touch -= Tx_Touch;
-            tx1.Touch -= Tx1_Touch;
-            tx2.Touch -= Tx2_Touch;
+            if (tx != null)
+            {
+                tx.Touch -= Tx_Touch;
+                tx = null;
+            }
+
+            if (tx1 != null)
+            {
+                tx1.Touch -= Tx1_Touch;
+                tx1 = null;
+            }
+
+            if (tx2 != null)
+            {
+                tx2.Touch -= Tx2_Touch;
+                tx2 = null;
+            }
+            polishTranslationLayout.RemoveAllViews();
         }
 
 
         private void Tx2_Touch(object sender, View.TouchEventArgs e)
         {
-            searchBox.Text = ((TextView)sender).Text;
-            polishTranslationLayout.RemoveAllViews();
-            UnsubscribeAll();
+            if (e.Event.Action == MotionEventActions.Down)
+            {
+                searchBox.Text = ((TextView)sender).Text.Substring(1, ((TextView)sender).Text.Length-2);
+                UnsubscribeAll();
+            }
         }
 
         private void Tx_Touch(object sender, View.TouchEventArgs e)
         {
-            searchBox.Text = ((TextView)sender).Text;
-            polishTranslationLayout.RemoveAllViews();
-            UnsubscribeAll();
+            if (e.Event.Action == MotionEventActions.Down)
+            {
+                searchBox.Text = ((TextView)sender).Text.Substring(1, ((TextView)sender).Text.Length - 2);
+                UnsubscribeAll();
+            }
         }
 
         private void Tx1_Touch(object sender, View.TouchEventArgs e)
         {
-            searchBox.Text = ((TextView)sender).Text;
-            polishTranslationLayout.RemoveAllViews();
-            UnsubscribeAll();
+            if (e.Event.Action == MotionEventActions.Down)
+            {
+                searchBox.Text = ((TextView)sender).Text.Substring(1, ((TextView)sender).Text.Length - 2);
+                UnsubscribeAll();
+            }
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
