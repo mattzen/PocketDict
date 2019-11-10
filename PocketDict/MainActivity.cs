@@ -17,6 +17,7 @@ using PocketDict.Daos;
 using PocketDict.Models;
 using PocketDict.Services;
 using SQLite;
+using Xamarin.Essentials;
 
 namespace PocketDict
 {
@@ -28,6 +29,8 @@ namespace PocketDict
         private TextView wordView;
         private TextView polishView;
         private TextView suggestionsView;
+        private Button speakButton;
+        private string currentWord = string.Empty;
 
         SuggestionCalculatingService suggestionService;
         WordDao dao;
@@ -46,7 +49,8 @@ namespace PocketDict
             wordView = FindViewById<TextView>(Resource.Id.wordView);
             polishView = FindViewById<TextView>(Resource.Id.polishView);
             suggestionsView = FindViewById<TextView>(Resource.Id.suggestionsView);
-
+            speakButton = FindViewById<Button>(Resource.Id.speakButton);
+            speakButton.Visibility = ViewStates.Invisible;
             definitionsView.MovementMethod = new ScrollingMovementMethod();
 
             searchBox.TextChanged += SearchBox_TextChanged;
@@ -56,6 +60,16 @@ namespace PocketDict
 
             FloatingActionButton fab = FindViewById<FloatingActionButton>(Resource.Id.fab);
             fab.Click += FabOnClick;
+
+            speakButton.Touch += SpeakButton_Touch;
+        }
+
+        private void SpeakButton_Touch(object sender, View.TouchEventArgs e)
+        {
+            if (e.Event.Action == MotionEventActions.Down)
+            {
+                TextToSpeech.SpeakAsync(currentWord);
+            }
         }
 
         private void SearchBox_TextChanged(object sender, Android.Text.TextChangedEventArgs e)
@@ -73,6 +87,7 @@ namespace PocketDict
 
                     if (polishTask?.Result != null && polishTask.Result.words.Count > 0)
                     {
+                        speakButton.Visibility = ViewStates.Invisible;
                         wordView.Text = string.Empty;
                         wordView.Append($"{polishTask.Result.polishWord?.word} [{polishTask.Result.polishWord?.type}]");
                         definitionsView.Text = string.Empty;
@@ -83,6 +98,13 @@ namespace PocketDict
                     {
                         wordView.Text = string.Empty;
                         wordView.Append($"{englishTask.Result.word?.word} [{englishTask.Result.word?.type}]");
+
+                        if (englishTask.Result.word?.word != null)
+                        {
+                            currentWord = englishTask.Result.word.word;
+                            speakButton.Visibility = ViewStates.Visible;
+                        }
+
                         definitionsView.Text = string.Empty;
                         polishView.Text = string.Empty;
                         SetDefitnitionsView(definitionsView, englishTask.Result.definitions, englishTask.Result.examples);
@@ -92,6 +114,7 @@ namespace PocketDict
                     definitionsView.Invalidate();
                     wordView.Invalidate();
                     polishView.Invalidate();
+                    //speakButton.Invalidate();
                 }
             }
             catch(Exception ex)

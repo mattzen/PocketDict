@@ -22,30 +22,43 @@
         android:gravity="fill_vertical"
         android:layout_below="@+id/searchBox"/>
 
+    <RelativeLayout
+        android:id="@+id/wordLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/suggestionsView">
+        <TextView
+            android:id="@+id/wordView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize = "60px"
+            android:fontFamily="sans-serif-black"
+            android:gravity="fill_vertical"
+           
+            android:layout_alignParentLeft="true"/>
+        <Button
+            
+            android:background="@drawable/speak_small"
+            android:layout_toRightOf="@+id/wordView"
+            android:layout_width="33.0dp"
+            android:layout_height="27.5dp"
+            android:layout_marginLeft="20px"
+            android:id="@+id/speakButton" />
 
-    	<TextView
-		android:id="@+id/wordView"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-        android:textSize = "60px"
-        android:fontFamily="sans-serif-black"
-        android:gravity="fill_vertical"
-        android:layout_below="@+id/suggestionsView"/>
+    </RelativeLayout >
 
     	<TextView
 		android:id="@+id/definitionsView"
-		android:layout_width="fill_parent"
+		android:layout_width="wrap_content"
         android:textSize = "40px"
 		android:layout_height="wrap_content"
-        android:scrollbars = "vertical"
-        android:fontFamily="sans-serif-black" 
-        android:gravity="fill_vertical"
-        android:layout_below="@+id/wordView"/>
-		    			
+        android:layout_below="@+id/wordLayout"
+        android:fontFamily="sans-serif-black" />
+ 
 	    <TextView
         android:layout_below="@+id/definitionsView"
 		android:id="@+id/polishView"
-		android:layout_width="fill_parent"
+		android:layout_width="wrap_content"
         android:textSize = "40px"
 		android:layout_height="wrap_content"	
         android:textFontWeight="100"
