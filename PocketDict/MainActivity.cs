@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using Android.App;
@@ -104,10 +105,10 @@ namespace PocketDict
                         wordView.Append($"{polishTask.Result.polishWord?.word} [{polishTask.Result.polishWord?.type}]");
                         definitionsView.Text = string.Empty;
                         polishView.Text = string.Empty;
-                        SetEnglishTransaltionView(polishView, polishTask.Result.words);
+                        SetEnglishTransaltionView(polishView, polishTask.Result.words, polishTask.Result.polishWord.word);
                     }
-                    else if (englishTask?.Result != null && englishTask.Result.polishWords.Count > 0)
-                    {
+                    if (englishTask?.Result != null && englishTask.Result.polishWords.Count > 0)
+                    { 
                         wordView.Text = string.Empty;
                         wordView.Append($"{englishTask.Result.word?.word} [{englishTask.Result.word?.type}]");
 
@@ -126,7 +127,7 @@ namespace PocketDict
                     definitionsView.Invalidate();
                     wordView.Invalidate();
                     polishView.Invalidate();
-                    //speakButton.Invalidate();
+
                 }
             }
             catch(Exception ex)
@@ -167,11 +168,11 @@ namespace PocketDict
 
 
 
-        public void SetEnglishTransaltionView(TextView polishView, List<Word> polishWords)
+        public void SetEnglishTransaltionView(TextView polishView, List<Word> polishWords, string keyword)
         {
-            polishTranslationLayout.RemoveAllViews();
-            
-            //polishView.Append("English: ");
+            UnsubscribeAll();
+
+           // polishView.Append("English: ");
             //polishView.Append(System.Environment.NewLine);
             //StringBuilder str = new StringBuilder();
             //foreach (var polword in polishWords)
@@ -180,23 +181,25 @@ namespace PocketDict
             //}
             //polishView.Append(str.ToString());
 
+            var label = new TextView(this);
+            label.Text = $"English translation of { keyword }': ";
+            polishTranslationLayout.AddView(label);
+
             tx = new TextView(this);
-            tx.SetTextColor(Color.DarkBlue);
-            tx.SetTextSize(ComplexUnitType.Pt, 14);
+            tx.SetTextColor(Color.DarkRed);
+            tx.SetTextSize(ComplexUnitType.Pt, 12);
             tx.SetTypeface(null, TypefaceStyle.Bold);
-            tx.Text = $"[{polishWords[0].word}]";
-            tx.SetPadding(0,0,0,0);
+            tx.Text = polishWords[0].word;
             tx.Touch += Tx_Touch;
             polishTranslationLayout.AddView(tx);
 
             if (polishWords.Count > 1)
             {
                 tx1 = new TextView(this);
-                tx1.SetTextColor(Color.DarkBlue);
-                tx1.Text = $"[{polishWords[1].word}]";
-                tx1.SetTextSize(ComplexUnitType.Pt, 14);
+                tx1.SetTextColor(Color.DarkRed);
+                tx1.Text = polishWords[1].word;
+                tx1.SetTextSize(ComplexUnitType.Pt, 12);
                 tx1.SetTypeface(null, TypefaceStyle.Bold);
-                tx1.SetPadding(25, 0, 0, 0);
                 tx1.Touch += Tx1_Touch;
                 polishTranslationLayout.AddView(tx1);
             }
@@ -204,10 +207,9 @@ namespace PocketDict
             if (polishWords.Count > 2)
             {
                 tx2 = new TextView(this);
-                tx2.SetTextColor(Color.DarkBlue);
-                tx2.Text = $"[{polishWords[2].word}]";
-                tx2.SetPadding(25, 0, 0, 0);
-                tx2.SetTextSize(ComplexUnitType.Pt, 14);
+                tx2.SetTextColor(Color.DarkRed);
+                tx2.Text = polishWords[2].word;
+                tx2.SetTextSize(ComplexUnitType.Pt, 12);
                 tx2.SetTypeface(null, TypefaceStyle.Bold);
                 tx2.Touch += Tx2_Touch;
                 polishTranslationLayout.AddView(tx2);
@@ -244,7 +246,7 @@ namespace PocketDict
         {
             if (e.Event.Action == MotionEventActions.Down)
             {
-                searchBox.Text = ((TextView)sender).Text.Substring(1, ((TextView)sender).Text.Length-2);
+                searchBox.Text = ((TextView)sender).Text;
                 UnsubscribeAll();
             }
         }
@@ -253,7 +255,7 @@ namespace PocketDict
         {
             if (e.Event.Action == MotionEventActions.Down)
             {
-                searchBox.Text = ((TextView)sender).Text.Substring(1, ((TextView)sender).Text.Length - 2);
+                searchBox.Text = ((TextView)sender).Text;
                 UnsubscribeAll();
             }
         }
@@ -262,7 +264,7 @@ namespace PocketDict
         {
             if (e.Event.Action == MotionEventActions.Down)
             {
-                searchBox.Text = ((TextView)sender).Text.Substring(1, ((TextView)sender).Text.Length - 2);
+                searchBox.Text = ((TextView)sender).Text;
                 UnsubscribeAll();
             }
         }

@@ -11,11 +11,11 @@
         android:id="@+id/searchBox"
 		android:layout_width="fill_parent"        
         android:layout_height="50dp"
-        android:hint="Type a word"/>
+        android:hint="Type a polish or english word"/>
 
      	<TextView
 		android:id="@+id/suggestionsView"
-		android:layout_width="fill_parent"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
         android:textSize = "35px"
         android:fontFamily="sans-serif-black"
@@ -69,7 +69,8 @@
     <LinearLayout
       android:id="@+id/polishTranslationLayout"
       android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
+      android:layout_height="fill_parent"
+      android:orientation = "vertical"
       android:layout_below="@+id/polishView">
     </LinearLayout >
 
