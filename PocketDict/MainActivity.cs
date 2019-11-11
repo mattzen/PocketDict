@@ -182,7 +182,7 @@ namespace PocketDict
             //polishView.Append(str.ToString());
 
             var label = new TextView(this);
-            label.Text = $"English translation of { keyword }': ";
+            label.Text = $"English translation of '{ keyword }': ";
             polishTranslationLayout.AddView(label);
 
             tx = new TextView(this);
