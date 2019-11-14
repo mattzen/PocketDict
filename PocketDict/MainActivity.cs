@@ -6,10 +6,12 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using Android.App;
+using Android.Content;
 using Android.Content.Res;
 using Android.Graphics;
 using Android.OS;
 using Android.Runtime;
+using Android.Speech;
 using Android.Support.Design.Widget;
 using Android.Support.V7.App;
 using Android.Text.Method;
@@ -33,9 +35,10 @@ namespace PocketDict
         private TextView polishView;
         private TextView suggestionsView;
         private Button speakButton;
+        private Button micButton;
         private string currentWord = string.Empty;
         private LinearLayout polishTranslationLayout;
-
+     
         private TextView tx;
         private TextView tx1;
         private TextView tx2;
@@ -60,6 +63,7 @@ namespace PocketDict
             polishView = FindViewById<TextView>(Resource.Id.polishView);
             suggestionsView = FindViewById<TextView>(Resource.Id.suggestionsView);
             speakButton = FindViewById<Button>(Resource.Id.speakButton);
+            micButton = FindViewById<Button>(Resource.Id.micButton);
             polishTranslationLayout = FindViewById<LinearLayout>(Resource.Id.polishTranslationLayout);
 
        
@@ -75,6 +79,36 @@ namespace PocketDict
             fab.Click += FabOnClick;
 
             speakButton.Touch += SpeakButton_Touch;
+            micButton.Touch += MicButton_Touch;
+        }
+
+
+        private static int RECOGNIZER_RESULT = 1234;
+        private void MicButton_Touch(object sender, View.TouchEventArgs e)
+        {
+            if (e.Event.Action == MotionEventActions.Down)
+            {
+                Intent intent = new Intent(RecognizerIntent.ActionRecognizeSpeech);
+                intent.PutExtra(RecognizerIntent.ExtraLanguageModel,
+                    RecognizerIntent.LanguageModelFreeForm);
+                intent.PutExtra(RecognizerIntent.ExtraPrompt, "Speech to text");
+                StartActivityForResult(intent, RECOGNIZER_RESULT);
+            }
+        }
+
+        protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
+        {
+
+            if(requestCode == RECOGNIZER_RESULT && resultCode == Result.Ok) {
+                var matches = data.GetStringArrayListExtra(
+                    RecognizerIntent.ExtraResults);
+
+                if (matches.FirstOrDefault() != null)
+                {
+                    searchBox.Text = matches.First();
+                }
+            }
+
         }
 
         private void SpeakButton_Touch(object sender, View.TouchEventArgs e)
